@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iORE | International Organization for Renewable Energy</title>
+    <meta name="description" content="Infrastruttura energetica e connettività ecosostenibile paneuropea. Luce, Gas, Acqua e Internet a impatto zero.">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJjhL9-d-2QMKDYviV7KfYhUOHWDAoasU",
+            authDomain: "horizongls.firebaseapp.com",
+            databaseURL: "https://horizongls-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "horizongls",
+            storageBucket: "horizongls.firebasestorage.app",
+            messagingSenderId: "611544552805",
+            appId: "1:611544552805:web:88fb0e35e59fb5bf543d8c"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app);
+        window.ref = ref;
+        window.set = set;
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
+        
+        :root {
+            --bg-base: #040711;
+        }
+        
+        body {
+            background-color: var(--bg-base);
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .glass {
+            background: rgba(11, 17, 32, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-premium {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(6, 182, 212, 0.06) 100%);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .text-gradient-eco {
+            background: linear-gradient(135deg, #34d399, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #040711; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        
+        .spinner { border: 3px solid rgba(255,255,255,0.2); border-radius: 50%; border-top: 3px solid #10b981; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500/30 selection:text-emerald-300 relative">
+
+    <div class="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/5 blur-[160px] rounded-full pointer-events-none -z-10"></div>
+    <div class="absolute top-[20%] right-1/4 w-[800px] h-[800px] bg-cyan-500/5 blur-[200px] rounded-full pointer-events-none -z-10"></div>
+    <div class="absolute top-[60%] left-0 w-[600px] h-[600px] bg-blue-600/5 blur-[180px] rounded-full pointer-events-none -z-10"></div>
+
+    <nav class="w-full z-50 glass border-b border-white/5 relative">
+        <div class="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="globe" class="w-5 h-5 text-slate-900 stroke-[2.5]"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-tight font-display leading-none">iORE</span>
+                    <span class="text-[9px] text-slate-400 font-medium tracking-widest mt-0.5 uppercase">International Organization</span>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#rates" class="hover:text-emerald-400 transition">Prezzi a Consumo</a>
+                <a href="#offers" class="hover:text-emerald-400 transition">Pacchetti UE</a>
+                <a href="#water-infrastructure" class="hover:text-blue-400 transition">Rete Idrica Continentale</a>
+                <a href="#infrastructure" class="hover:text-emerald-400 transition">Centrali & Gas Romania</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="relative inline-block text-left" id="langSelectorContainer">
+                    <button onclick="toggleLangDropdown()" class="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-2 rounded-xl border border-white/10 transition text-xs font-semibold">
+                        <span id="currentLangFlag">🇮🇹</span> <span id="currentLangCode" class="uppercase">IT</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-60"></i>
+                    </button>
+                    <div id="langDropdown" class="hidden absolute right-0 mt-2 w-60 max-h-80 overflow-y-auto rounded-2xl glass border border-white/10 shadow-2xl z-50 p-2 space-y-0.5"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative pt-20 pb-16 px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto grid lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Infrastruttura Energetica Connessa UE v5.0</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight font-display text-white leading-[1.1]">
+                Risorse Naturali e<br> <span class="text-gradient-eco">Connettività Globale.</span>
+            </h1>
+            <p class="text-slate-400 text-base sm:text-xl max-w-2xl font-light leading-relaxed">
+                iORE coordina la transizione digitale ed energetica in Europa con una forza mastodontica. Gestiamo l'erogazione diretta da oltre 50 centrali in Romania, 32 bacini di Gas nel Mar Nero e oltre 15.000 km di acquedotti transnazionali.
+            </p>
+            <div class="pt-4 flex flex-wrap gap-4">
+                <a href="#offers" class="bg-white text-slate-950 font-bold px-8 py-4 rounded-xl text-sm shadow-xl hover:bg-slate-100 transition font-display">Esplora i Pacchetti e Stipula</a>
+                <a href="#infrastructure" class="bg-white/5 hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl text-sm border border-white/10 transition">Report Megastrutture Europee</a>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 relative">
+            <div class="glass-premium rounded-[2.5rem] p-8 space-y-6 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/10 blur-3xl rounded-full"></div>
+                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                    <span class="text-xs font-mono tracking-widest text-emerald-400">INDICE TARIFFE ALLA FONTE 2026</span>
+                    <i data-lucide="activity" class="w-4 h-4 text-emerald-400 animate-pulse"></i>
+                </div>
+                <div class="space-y-3 font-mono text-xs">
+                    <div class="flex justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <span class="text-slate-400">⚡ Luce Monoraria (Green)</span>
+                        <span class="text-emerald-400 font-bold">€ 0.108 / kWh</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <span class="text-slate-400">🔥 Gas Naturale & Biometano</span>
+                        <span class="text-emerald-400 font-bold">€ 0.395 / Smc</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <span class="text-slate-400">💧 Idrico Consumo Diretto</span>
+                        <span class="text-emerald-400 font-bold">€ 0.820 / m³</span>
+                    </div>
+                    <div class="flex justify-between p-3 bg-white/[0.02] border border-white/5 rounded-xl">
+                        <span class="text-slate-400">🌐 Fibra FTTH Simmetrica (UE)</span>
+                        <span class="text-emerald-400 font-bold">€ 19.90 / mese</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="rates" class="py-20 px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto border-t border-white/5">
+        <div class="text-center space-y-3 mb-12">
+            <h2 class="text-3xl font-bold font-display">Trasparenza Costi: Zero Intermediari</h2>
+            <p class="text-slate-400 text-sm max-w-2xl mx-auto">Le nostre tariffe a consumo sono basate sul prezzo all'ingrosso puro. iORE elimina i ricarichi speculativi di mercato vendendo l'energia direttamente dalle proprie centrali.</p>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="text-amber-400 flex items-center gap-2 font-display font-bold text-sm"><i data-lucide="zap" class="w-4 h-4"></i> ENERGIA ELETTRICA</div>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Quota Fissa:</span><span class="text-slate-300">€ 9.00/mese</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Fascia F1 (Picco):</span><span class="text-white">€ 0.125/kWh</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Fascia F2 (Medio):</span><span class="text-white">€ 0.112/kWh</span></div>
+                    <div class="flex justify-between"><span>Fascia F3 (Notte):</span><span class="text-white">€ 0.095/kWh</span></div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="text-orange-400 flex items-center gap-2 font-display font-bold text-sm"><i data-lucide="flame" class="w-4 h-4"></i> GAS ECO-MIX & NATURALE</div>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Quota Fissa:</span><span class="text-slate-300">€ 8.50/mese</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Costo Riferimento:</span><span class="text-white">€ 0.395/Smc</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Oneri di Rete:</span><span class="text-slate-400">Passanti</span></div>
+                    <div class="flex justify-between"><span>Origine:</span><span class="text-emerald-400">Mar Nero</span></div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="text-blue-400 flex items-center gap-2 font-display font-bold text-sm"><i data-lucide="droplet" class="w-4 h-4"></i> RISORSA IDRICA</div>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Quota Fissa:</span><span class="text-slate-300">€ 2.10/mese</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Sino a 30m³:</span><span class="text-white">€ 0.610/m³</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Oltre 30m³:</span><span class="text-white">€ 0.820/m³</span></div>
+                    <div class="flex justify-between"><span>Quota Depurazione:</span><span class="text-slate-400">€ 0.110/m³</span></div>
+                </div>
+            </div>
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="text-purple-400 flex items-center gap-2 font-display font-bold text-sm"><i data-lucide="wifi" class="w-4 h-4"></i> CONNETTIVITÀ GLOBALE</div>
+                <div class="space-y-2 text-xs font-mono">
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Attivazione Linea:</span><span class="text-emerald-400">Gratuita</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Fibra Pura FTTH:</span><span class="text-white">€ 19.90/mese</span></div>
+                    <div class="flex justify-between border-b border-white/5 pb-1"><span>Rame/Misto FTTC:</span><span class="text-white">€ 17.90/mese</span></div>
+                    <div class="flex justify-between"><span>iORE Satellite:</span><span class="text-white">€ 29.90/mese</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="offers" class="py-24 px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto border-t border-white/5">
+        <div class="text-center space-y-3 mb-16">
+            <span class="text-emerald-400 font-bold tracking-widest uppercase text-xs">Adesione Diretta</span>
+            <h2 class="text-4xl font-extrabold font-display">I 9 Pacchetti Unificati iORE</h2>
+            <p class="text-slate-400 text-base max-w-3xl mx-auto">Una selezione mastodontica di piani integrati per ogni tipologia di utenza europea. Scegli l'ecosistema che più si adatta a te ed avvia la procedura di stipula contratto centralizzata.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-cyan-500/30 transition duration-300">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-cyan-500/10 text-cyan-400 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Target: Under 30</span>
+                        <i data-lucide="sparkles" class="text-cyan-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-display">Under 30 Green Tech</h3>
+                    <p class="text-xs text-slate-400">Sviluppato per studenti universitari e giovani professionisti europei.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Internet FTTH 2.5G Ultraveloce</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Luce tariffa agevolata (15% di sconto fisso)</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Internet'], 'Under 30 Green Tech')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-amber-500/30 transition duration-300">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-amber-500/10 text-amber-400 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Target: Over 65</span>
+                        <i data-lucide="heart" class="text-amber-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-display">Senior Smart Life</h3>
+                    <p class="text-xs text-slate-400">Protezione garantita contro le fluttuazioni del mercato energetico.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Costo Luce, Gas e Acqua BLOCCATO per 36 mesi</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Assistenza telefonica prioritaria h24</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Gas', 'Acqua'], 'Senior Smart Life')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass-premium p-8 rounded-[2.5rem] space-y-6 flex flex-col justify-between border-emerald-500/40 shadow-2xl relative transform lg:-translate-y-3">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 text-[10px] font-extrabold tracking-widest px-5 py-1.5 rounded-full uppercase">BEST SELLER FAMIGLIE</div>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="text-emerald-400 text-xs font-bold font-display uppercase tracking-widest">Residenziale</span>
+                        <i data-lucide="home" class="text-emerald-400 w-6 h-6"></i>
+                    </div>
+                    <h3 class="text-3xl font-extrabold font-display text-white">All-In Home Hub</h3>
+                    <p class="text-sm text-slate-300">L'unificazione monumentale di tutte le utenze in un'unica anagrafica a zero emissioni.</p>
+                    <ul class="space-y-2 text-sm text-slate-200 pt-3 border-t border-white/10">
+                        <li class="flex items-center gap-3"><i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i> Elettricità 100% da Parchi Solari UE</li>
+                        <li class="flex items-center gap-3"><i data-lucide="flame" class="w-4 h-4 text-emerald-400"></i> Gas Naturale Compensato (Mar Nero)</li>
+                        <li class="flex items-center gap-3"><i data-lucide="droplet" class="w-4 h-4 text-emerald-400"></i> Acqua Pura con Manutenzione Rete</li>
+                        <li class="flex items-center gap-3"><i data-lucide="wifi" class="w-4 h-4 text-emerald-400"></i> Connettività Internet Inclusa</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Gas', 'Acqua', 'Internet'], 'All-In Home Hub')" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold py-4 rounded-xl text-sm shadow-xl hover:scale-[1.02] transition-transform">Stipula Contratto Unico</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-white/20 transition duration-300">
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold font-display">Eco Minimal</h3>
+                    <p class="text-xs text-slate-400">Per seconde case, box o utenze con uso saltuario e ridotto.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Solo Luce Pura Idroelettrica (Danubio)</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Zero oneri extra, paghi solo se consumi</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce'], 'Eco Minimal')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between border-blue-500/10 hover:border-blue-500/30 transition duration-300">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Target: EV Owners</span>
+                        <i data-lucide="car" class="text-blue-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-display">E-Mobility Charge</h3>
+                    <p class="text-xs text-slate-400">Progettato per i possessori di Auto Elettriche (EV) con alti consumi notturni.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Energia Fascia F3 (Notte) a costo di produzione</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Installazione Wallbox iORE 7kW Inclusa</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce'], 'E-Mobility Charge')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-white/20 transition duration-300">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-slate-500/20 text-slate-300 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Amministratori</span>
+                        <i data-lucide="building" class="text-slate-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-display">Condominio Smart</h3>
+                    <p class="text-xs text-slate-400">Pacchetto per stabili condominiali. Gestione unificata di ascensori, riscaldamento e pompe di calore.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Elettricità Parti Comuni + Gas Centralizzato</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Gestione Acqua Potabile di Condominio</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Gas', 'Acqua'], 'Condominio Smart')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-white/20 transition duration-300">
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold font-display">Business EU Grid</h3>
+                    <p class="text-xs text-slate-400">Per PMI, negozi e uffici. Energia trifase e connessione stabile garantita per pos.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Banda Minima Garantita 1 Gbps simmetrico</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Detrazione fiscale automatica IVA agevolata</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Internet'], 'Business EU Grid')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-purple-500/30 transition duration-300 border-purple-500/10">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="bg-purple-500/10 text-purple-400 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full uppercase">Multinazionali</span>
+                        <i data-lucide="globe" class="text-purple-400 w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-display">Enterprise Multi-Site</h3>
+                    <p class="text-xs text-slate-400">Controllo di centinaia di sedi commerciali in tutta Europa tramite un unico pannello iORE.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Accorpamento di POD e PDR infiniti</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Bilanciamento di Carico e Server Dedicati</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Gas', 'Internet'], 'Enterprise Multi-Site')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+
+            <div class="glass p-8 rounded-[2rem] space-y-6 flex flex-col justify-between hover:border-white/20 transition duration-300">
+                <div class="space-y-4">
+                    <h3 class="text-2xl font-bold font-display">Agro-Ecosystems</h3>
+                    <p class="text-xs text-slate-400">Soluzione per le grandi aziende agricole, serre idroponiche ed insediamenti rurali.</p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-white/5">
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Pompaggio Idrico intensivo a costo agevolato</li>
+                        <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i> Internet Satellitare per monitoraggio IoT campi</li>
+                    </ul>
+                </div>
+                <button onclick="openActivationModal(['Luce', 'Acqua', 'Internet'], 'Agro-Ecosystems')" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3.5 rounded-xl text-sm transition">Stipula Contratto</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="water-infrastructure" class="py-24 px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto border-t border-white/5">
+        <div class="grid lg:grid-cols-12 gap-12 items-center mb-16">
+            <div class="lg:col-span-7 space-y-5">
+                <div class="text-xs font-mono tracking-widest text-blue-400 uppercase flex items-center gap-2"><i data-lucide="droplets" class="w-5 h-5"></i> INFRASTRUTTURA IDRICA CONTINENTALE</div>
+                <h2 class="text-4xl sm:text-5xl font-bold font-display">Oltre 15.000 Km di Tubazioni.</h2>
+                <p class="text-slate-400 text-lg leading-relaxed">
+                    iORE gestisce il più vasto network sotterraneo di captazione dalle falde acquifere profonde, acquedotti ad alta pressione e sistemi di microfiltrazione avanzata dell'Unione Europea. Garantiamo la sicurezza idrica ad un intero continente.
+                </p>
+            </div>
+            <div class="lg:col-span-5 relative">
+                <div class="glass p-6 rounded-3xl border-blue-500/20 space-y-4">
+                    <h4 class="font-bold font-display text-white border-b border-white/10 pb-3">Statistiche di Rete Idrica</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <div class="text-3xl font-black text-blue-400">15.420</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">KM di Condotte</div>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <div class="text-3xl font-black text-blue-400">1.2 Mln</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Litri Erogati / Min</div>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5 col-span-2">
+                            <div class="text-3xl font-black text-blue-400">81</div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Bacini di Depurazione Mastodontici Attivi in UE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h3 class="text-2xl font-bold font-display border-l-4 border-blue-500 pl-4">Elenco Principali Depuratori & Bacini Mastodontici</h3>
+            <p class="text-sm text-slate-400 max-w-4xl">Trattamento acque nere, osmosi inversa e re-immissione sicura in natura. Ecco i 3 poli principali per i paesi chiave dell'accordo quadro europeo:</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3 hover:bg-white/[0.04] transition">
+                    <div class="flex items-center gap-2 font-bold text-white"><span class="text-lg">🇮🇹</span> Italia</div>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li>1. Polo Idrico Milano Sud (Nosedo)</li>
+                        <li>2. Mega-Depuratore Roma Est</li>
+                        <li>3. Bacino di Castiglione (Torino)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3 hover:bg-white/[0.04] transition">
+                    <div class="flex items-center gap-2 font-bold text-white"><span class="text-lg">🇫🇷</span> Francia</div>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li>1. Seine Aval (Parigi Ovest)</li>
+                        <li>2. Complesso Géolide (Marsiglia)</li>
+                        <li>3. Bacino di Saint-Fons (Lione)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3 hover:bg-white/[0.04] transition">
+                    <div class="flex items-center gap-2 font-bold text-white"><span class="text-lg">🇩🇪</span> Germania</div>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li>1. Klärwerk Ruhleben (Berlino)</li>
+                        <li>2. Gut Großlappen (Monaco)</li>
+                        <li>3. Köhlbrandhöft (Amburgo)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3 hover:bg-white/[0.04] transition">
+                    <div class="flex items-center gap-2 font-bold text-white"><span class="text-lg">🇪🇸</span> Spagna</div>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li>1. Sur de Madrid (Madrid)</li>
+                        <li>2. EDAR Besòs (Barcellona)</li>
+                        <li>3. Complesso Pinedo (Valencia)</li>
+                    </ul>
+                </div>
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-3 hover:bg-white/[0.04] transition">
+                    <div class="flex items-center gap-2 font-bold text-white"><span class="text-lg">🇷🇴</span> Romania</div>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li>1. Statia de Epurare Glina (Bucarest)</li>
+                        <li>2. Bacino Somes (Cluj-Napoca)</li>
+                        <li>3. Depuratore Bega (Timisoara)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-[10px] text-slate-500 uppercase tracking-widest text-center mt-4">La rete si estende per altre 22 nazioni membre, con un totale di 81 impianti mastodontici interconnessi.</div>
+        </div>
+    </section>
+
+    <section id="infrastructure" class="py-24 px-4 sm:px-6 lg:px-8 max-w-[90rem] mx-auto border-t border-white/5">
+        <div class="text-center space-y-4 mb-16">
+            <span class="text-emerald-400 font-bold tracking-widest uppercase text-xs">Produzione alla Fonte</span>
+            <h2 class="text-4xl sm:text-5xl font-bold font-display">Hub Energetico Nazionale Romeno</h2>
+            <p class="text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+                Il cuore pulsante dell'Europa. iORE gestisce direttamente oltre <strong>50 mastodontiche infrastrutture energetiche</strong> in Romania e <strong>32 bacini di estrazione Gas Naturale</strong> nel Mar Nero e sotto i monti Transfăgărășan.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 mb-16">
+            <div class="glass overflow-hidden rounded-3xl group border-emerald-500/20">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 text-2xl font-black">15</div>
+                    <h3 class="text-xl font-bold font-display">Centrali Idroelettriche (Danubio)</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Sbarramenti e turbine idrauliche ciclopiche situate lungo il corso del fiume. Include i complessi di <strong>Drobeta-Turnu Severin</strong> (Porțile de Fier I), <strong>Orșova</strong>, l'area di <strong>Giurgiu</strong> e il nodo idrografico di <strong>Galați</strong>, per oltre 4500 MW di potenza garantita.</p>
+                </div>
+            </div>
+            <div class="glass overflow-hidden rounded-3xl group border-amber-500/20">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-400 text-2xl font-black">20</div>
+                    <h3 class="text-xl font-bold font-display">Macro-Parchi Agrivoltaici</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Immense distese di pannelli solari nelle pianure del sud. Spiccano il parco solare di <strong>Răsuceni (Giurgiu)</strong> e i vastissimi campi fotovoltaici della contea di <strong>Oltenia</strong>, che ricoprono migliaia di ettari senza intaccare il suolo agricolo.</p>
+                </div>
+            </div>
+            <div class="glass overflow-hidden rounded-3xl group border-cyan-500/20">
+                <div class="p-8 space-y-4">
+                    <div class="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center text-cyan-400 text-2xl font-black">15</div>
+                    <h3 class="text-xl font-bold font-display">Fattorie Eoliche Onshore</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Centinaia di turbine titaniche situate principalmente nella regione della Dobrogea. Il mastodontico impianto di <strong>Fântânele-Cogealac</strong> domina i venti del Mar Nero, spingendo energia pulita in tutta la griglia iORE europea.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-premium rounded-[3rem] p-8 sm:p-12 border-orange-500/20 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-orange-500/10 blur-[100px] rounded-full"></div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center relative z-10">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-2 bg-orange-500/10 text-orange-400 text-[10px] font-bold tracking-widest px-3 py-1.5 rounded-full uppercase">Estrazione a Impatto Zero</div>
+                    <h3 class="text-3xl sm:text-4xl font-black font-display text-white">32 Bacini di Gas Naturale</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        L'indipendenza energetica dell'Europa passa dalle trivelle sottomarine e montane di iORE. Il nostro network include:
+                    </p>
+                    <ul class="space-y-4 text-sm text-slate-300">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="waves" class="w-5 h-5 text-blue-400 mt-0.5"></i>
+                            <div>
+                                <strong class="text-white block mb-1">20 Piattaforme Offshore nel Mar Nero</strong>
+                                <span class="text-xs opacity-70">Estraggono dai massicci giacimenti <em>Neptun Deep</em>, <em>Midia Gas Development</em> e <em>Pelican South</em>.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="mountain-snow" class="w-5 h-5 text-white mt-0.5"></i>
+                            <div>
+                                <strong class="text-white block mb-1">12 Siti di Stoccaggio & Estrazione Terrestre</strong>
+                                <span class="text-xs opacity-70">Tunnel sotterranei situati tra i contrafforti dei monti <strong>Transfăgărășan</strong>, le riserve della contea di <strong>Argeș</strong>, il lago <strong>Vidraru</strong> e i pozzi profondi vicino <strong>Sibiu</strong>.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative h-80 lg:h-full min-h-[300px]">
+                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80" alt="Transfagarasan Gas" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#040711] via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <div class="bg-black/60 backdrop-blur-md border border-white/10 p-4 rounded-xl text-xs text-white font-mono">
+                            > SYSTEM_SYNC: ACTIVATED<br>
+                            > TRANSFĂGĂRĂȘAN_VALVES: 12/12 ONLINE<br>
+                            > BLACK_SEA_RIGS: 20/20 OPERATIONAL<br>
+                            <span class="text-emerald-400">> PRESSURE: NOMINAL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#02040a] border-t border-white/5 py-12 px-4 text-center text-slate-500 text-xs mt-20">
+        <p>&copy; 2026 iORE International Organization for Renewable Energy. Infrastrutture Mastodontiche UE.</p>
+        <p class="mt-2 text-[10px] opacity-50">Tutti i sistemi sono collegati all'Horizon Grid Sync Framework. Conformità Direttiva 2026/EU/NRG.</p>
+    </footer>
+
+    <div id="activationModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto">
+        
+        <div class="glass-premium w-full max-w-4xl rounded-[2.5rem] border border-white/10 shadow-2xl relative my-auto">
+            
+            <button onclick="closeActivationModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition z-50">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div id="privacyBlockerOverlay" class="absolute inset-0 bg-[#040711]/95 backdrop-blur-xl z-30 flex flex-col items-center justify-center p-6 text-center rounded-[2.5rem]">
+                <div class="max-w-xl space-y-6">
+                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                        <i data-lucide="shield-alert" class="w-8 h-8"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-2xl font-bold font-display text-white">Consenso Normativo e Sicurezza Dati</h3>
+                        <p class="text-sm text-slate-400">Stai per stipulare il pacchetto: <strong id="selectedOfferName" class="text-emerald-400"></strong>. <br>In conformità con il GDPR europeo e le regolamentazioni ARERA, accetta i consensi per accedere al modulo sicuro di Horizon.</p>
+                    </div>
+                    
+                    <div class="text-left space-y-3 bg-white/[0.02] border border-white/5 p-5 rounded-2xl">
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" id="privacy_c1" class="mt-0.5 w-4 h-4 accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300 leading-tight"><strong>[OBBLIGATORIO]</strong> Autorizzazione all'interconnessione tecnica con i distributori UE per la verifica dei contatori (POD/PDR).</span>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" id="privacy_c2" class="mt-0.5 w-4 h-4 accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300 leading-tight"><strong>[OBBLIGATORIO]</strong> Trasmissione sicura dei dati anagrafici e bancari ai server centralizzati di elaborazione Horizon Servizi.</span>
+                        </label>
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" id="privacy_c3" class="mt-0.5 w-4 h-4 accent-emerald-500 rounded">
+                            <span class="text-xs text-slate-300 leading-tight"><strong>[OBBLIGATORIO]</strong> Accettazione delle tariffe "Alla Fonte" vincolanti alla sottoscrizione telematica del contratto iORE.</span>
+                        </label>
+                    </div>
+
+                    <button onclick="unlockConfiguratorForm()" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold py-4 rounded-xl text-sm tracking-wider shadow-lg hover:opacity-95 transition font-display mt-4">
+                        ACCETTA I CONSENSI E PROCEDI ALLA STIPULA
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6 sm:p-10 opacity-0 select-none pointer-events-none transition-opacity duration-500 max-h-[85vh] overflow-y-auto custom-scrollbar" id="actualFormContainer">
+                
+                <div class="mb-8 border-b border-white/5 pb-6">
+                    <h2 class="text-3xl font-bold font-display text-white">Stipula Contratto iORE</h2>
+                    <p class="text-slate-400 text-sm mt-2">Compila l'anagrafica e i codici di rete. Stai attivando il pacchetto: <span id="formOfferNameDisplay" class="font-bold text-emerald-400"></span></p>
+                </div>
+
+                <form id="ioreActivationForm" onsubmit="handleFormSubmit(event)" class="space-y-8">
+                    <input type="hidden" id="f-pacchetto-scelto" value="">
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">1. Utenze Incluse nel Pacchetto</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <label class="relative flex flex-col items-center justify-center p-3 rounded-xl glass border border-white/5 cursor-not-allowed opacity-80">
+                                <input type="checkbox" id="srv_Luce" name="services" value="Luce" class="absolute top-2 right-2 accent-emerald-500 pointer-events-none">
+                                <i data-lucide="zap" class="w-4 h-4 text-amber-400 mb-1"></i><span class="text-[10px] font-bold">LUCE</span>
+                            </label>
+                            <label class="relative flex flex-col items-center justify-center p-3 rounded-xl glass border border-white/5 cursor-not-allowed opacity-80">
+                                <input type="checkbox" id="srv_Gas" name="services" value="Gas" class="absolute top-2 right-2 accent-emerald-500 pointer-events-none">
+                                <i data-lucide="flame" class="w-4 h-4 text-orange-400 mb-1"></i><span class="text-[10px] font-bold">GAS</span>
+                            </label>
+                            <label class="relative flex flex-col items-center justify-center p-3 rounded-xl glass border border-white/5 cursor-not-allowed opacity-80">
+                                <input type="checkbox" id="srv_Acqua" name="services" value="Acqua" class="absolute top-2 right-2 accent-emerald-500 pointer-events-none">
+                                <i data-lucide="droplet" class="w-4 h-4 text-blue-400 mb-1"></i><span class="text-[10px] font-bold">ACQUA</span>
+                            </label>
+                            <label class="relative flex flex-col items-center justify-center p-3 rounded-xl glass border border-white/5 cursor-not-allowed opacity-80">
+                                <input type="checkbox" id="srv_Internet" name="services" value="Internet" class="absolute top-2 right-2 accent-emerald-500 pointer-events-none">
+                                <i data-lucide="wifi" class="w-4 h-4 text-purple-400 mb-1"></i><span class="text-[10px] font-bold">INTERNET</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">2. Intestatario Contratto</label>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div><label class="block text-[11px] text-slate-400 mb-1">Nome *</label><input type="text" id="f-name" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                            <div><label class="block text-[11px] text-slate-400 mb-1">Cognome *</label><input type="text" id="f-surname" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                            <div><label class="block text-[11px] text-slate-400 mb-1">Email *</label><input type="email" id="f-email" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                            <div><label class="block text-[11px] text-slate-400 mb-1">Telefono *</label><input type="tel" id="f-phone" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                            <div class="sm:col-span-2"><label class="block text-[11px] text-slate-400 mb-1">Codice Fiscale / Partita IVA *</label><input type="text" id="f-taxid" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white uppercase font-mono focus:outline-none focus:border-emerald-500"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-400">3. Identificativi Tecnici di Rete</label>
+                        <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-5 space-y-4">
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div><label class="block text-[11px] text-slate-400 mb-1">Codice POD (Luce - es. IT001E...)</label><input type="text" id="f-pod" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm uppercase font-mono text-white focus:outline-none focus:border-emerald-500"></div>
+                                <div><label class="block text-[11px] text-slate-400 mb-1">Codice PDR (Gas - 14 cifre)</label><input type="text" id="f-pdr" maxlength="14" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-emerald-500"></div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div><label class="block text-[11px] text-slate-400 mb-1">Codice Matricola Contatore Acqua</label><input type="text" id="f-water" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Copertura Internet Richiesta</label>
+                                    <select id="f-internet-type" class="w-full bg-[#0d1527] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                                        <option value="FTTH">Fibra Pura FTTH</option>
+                                        <option value="FTTC">Misto Rame FTTC</option>
+                                        <option value="Satellite">iORE Orbit Satellite</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div><label class="block text-[11px] text-slate-400 mb-1">Indirizzo di Fornitura Completo (Via, Civico, CAP, Città, Nazione) *</label><input type="text" id="f-address" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 py-4 rounded-xl font-bold font-display shadow-lg hover:opacity-95 transition tracking-wider flex justify-center items-center gap-2">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        <span id="submitBtnText">REGISTRA CONTRATTO NEL GESTIONALE</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[200] hidden items-center justify-center p-4">
+        <div class="glass-premium max-w-lg w-full rounded-[2.5rem] p-8 space-y-4 border-emerald-500/30 text-center relative shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+            <div class="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                <i data-lucide="check-circle2" class="w-10 h-10"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-display text-white">Contratto Trasmesso!</h3>
+            <p class="text-sm text-slate-300">La richiesta iORE è stata sincronizzata con successo all'interno della coda ordini di <strong>Horizon Servizi</strong>. Un analista di rete prenderà in carico l'allineamento dei contatori.</p>
+            <button onclick="document.getElementById('successModal').classList.add('hidden'); document.getElementById('successModal').classList.remove('flex');" class="w-full bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3.5 rounded-xl text-sm transition mt-4">Torna alla Home</button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Lingue
+        const euLanguages = [
+            { code: "it", name: "Italiano", flag: "🇮🇹" }, { code: "en", name: "English", flag: "🇬🇧" },
+            { code: "fr", name: "Français", flag: "🇫🇷" }, { code: "de", name: "Deutsch", flag: "🇩🇪" },
+            { code: "es", name: "Español", flag: "🇪🇸" }, { code: "ro", name: "Română", flag: "🇷🇴" }
+        ];
+
+        const langDropdown = document.getElementById('langDropdown');
+        euLanguages.forEach(lang => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = "w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl text-slate-300 hover:bg-white/10 transition";
+            btn.onclick = () => {
+                document.getElementById('currentLangFlag').innerText = lang.flag;
+                document.getElementById('currentLangCode').innerText = lang.code;
+                langDropdown.classList.add('hidden');
+            };
+            btn.innerHTML = `<div class="flex items-center gap-2"><span>${lang.flag}</span><span>${lang.name}</span></div><span class="text-[10px] opacity-40 font-mono">${lang.code.toUpperCase()}</span>`;
+            langDropdown.appendChild(btn);
+        });
+        function toggleLangDropdown() { langDropdown.classList.toggle('hidden'); }
+
+        // Gestione Modale Form
+        function openActivationModal(listaServizi, nomeOfferta) {
+            // Checkbox pre-selezione
+            document.getElementById('srv_Luce').checked = listaServizi.includes('Luce');
+            document.getElementById('srv_Gas').checked = listaServizi.includes('Gas');
+            document.getElementById('srv_Acqua').checked = listaServizi.includes('Acqua');
+            document.getElementById('srv_Internet').checked = listaServizi.includes('Internet');
+            
+            // Imposta i testi del modale
+            document.getElementById('selectedOfferName').innerText = nomeOfferta;
+            document.getElementById('formOfferNameDisplay').innerText = nomeOfferta;
+            document.getElementById('f-pacchetto-scelto').value = nomeOfferta;
+
+            // Reset blocchi privacy
+            document.getElementById('privacy_c1').checked = false;
+            document.getElementById('privacy_c2').checked = false;
+            document.getElementById('privacy_c3').checked = false;
+
+            document.getElementById('privacyBlockerOverlay').classList.remove('hidden');
+            document.getElementById('privacyBlockerOverlay').classList.add('flex');
+            
+            const actualForm = document.getElementById('actualFormContainer');
+            actualForm.classList.add('opacity-0', 'select-none', 'pointer-events-none');
+            actualForm.classList.remove('opacity-100');
+
+            // Mostra Modal Overlayer
+            const modal = document.getElementById('activationModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden'; // blocca scroll sotto
+        }
+
+        function closeActivationModal() {
+            const modal = document.getElementById('activationModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto'; // sblocca scroll sotto
+        }
+
+        function unlockConfiguratorForm() {
+            const c1 = document.getElementById('privacy_c1').checked;
+            const c2 = document.getElementById('privacy_c2').checked;
+            const c3 = document.getElementById('privacy_c3').checked;
+
+            if(!c1 || !c2 || !c3) {
+                alert("Devi accettare obbligatoriamente tutti i consensi normativi europei per poter procedere alla stipula.");
+                return;
+            }
+
+            // Nascondi overlay privacy, mostra form
+            document.getElementById('privacyBlockerOverlay').classList.add('hidden');
+            document.getElementById('privacyBlockerOverlay').classList.remove('flex');
+            
+            const actualForm = document.getElementById('actualFormContainer');
+            actualForm.classList.remove('opacity-0', 'select-none', 'pointer-events-none');
+            actualForm.classList.add('opacity-100');
+        }
+
+        // Invio Firebase
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('submitBtnText');
+            
+            const checkedServices = [];
+            document.querySelectorAll('input[name="services"]:checked').forEach(cb => checkedServices.push(cb.value));
+
+            btnText.innerHTML = `<span class="spinner mr-2"></span> ELABORAZIONE...`;
+            btn.disabled = true;
+
+            const ticketId = Date.now();
+            const pacchetto = document.getElementById('f-pacchetto-scelto').value;
+            
+            // Payload Strutturato per Gestionale Horizon Servizi
+            const payload = {
+                id: ticketId,
+                dataInvio: new Date().toISOString(),
+                tipo: "iORE Organizzazione - Contratto Rete",
+                servizioAcquistato: `Pacchetto: [${pacchetto}] - Utenze: ${checkedServices.join(', ')}`,
+                nome: document.getElementById('f-name').value,
+                cognome: document.getElementById('f-surname').value,
+                email: document.getElementById('f-email').value,
+                telefono: document.getElementById('f-phone').value,
+                via: document.getElementById('f-address').value,
+                citta: "Fornitura Europea iORE",
+                cap: "UE",
+                prov: "UE",
+                nazione: "Unione Europea",
+                cfPrivato: document.getElementById('f-taxid').value.toUpperCase(),
+                dettagli: `Dati di Rete Rilevati:\n- POD Elettrico: ${document.getElementById('f-pod').value || 'N/D'}\n- PDR Gas: ${document.getElementById('f-pdr').value || 'N/D'}\n- Contatore Acqua: ${document.getElementById('f-water').value || 'N/D'}\n- Fibra Scelta: ${document.getElementById('f-internet-type').value}`,
+                stato: 'Nuovo Ordine'
+            };
+
+            try {
+                if(window.db) {
+                    await window.set(window.ref(window.db, 'richieste_servizi/' + ticketId), payload);
+                    
+                    // Mostra modale di successo
+                    closeActivationModal();
+                    document.getElementById('successModal').classList.remove('hidden');
+                    document.getElementById('successModal').classList.add('flex');
+                    document.getElementById('ioreActivationForm').reset();
+                } else {
+                    alert("Errore: connessione al database fallita.");
+                }
+            } catch(error) {
+                alert("Errore durante l'allineamento dei dati: " + error.message);
+            } finally {
+                btnText.innerHTML = `REGISTRA CONTRATTO NEL GESTIONALE`;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
